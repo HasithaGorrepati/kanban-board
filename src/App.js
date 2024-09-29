@@ -1,25 +1,63 @@
-import logo from './logo.svg';
-import './App.css';
+  import React, { useState, useEffect } from 'react';
+  import KanbanBoard from './components/Kanban-board.js';
+  import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+  const App= () => {
+    const [tickets, setTickets]= useState([]);
+    const [grouping, setGrouping]= useState('status'); 
+    const [sortBy, setSortBy]= useState('priority');   
+
+    useEffect(() => {
+      const fetchTickets= async () => {
+        try {
+          const response= await fetch('https://api.quicksell.co/v1/internal/frontend-assignment');
+          const data= await response.json();
+          setTickets(data.tickets);
+        } catch (error) {
+          console.error('Error fetching tickets:', error);
+        }
+      };
+
+      fetchTickets();
+    }, []);
+
+    useEffect(() => {
+      console.log('Grouping tickets by:', grouping);
+    }, [grouping]);
+
+    useEffect(() => {
+      console.log('Sorting tickets by:', sortBy);
+    }, [sortBy]);
+
+    return (
+      <div>
+        {/* Dropdown for grouping options */}
+        <label htmlFor= "grouping">Group by:</label>
+        <select 
+          id="grouping" 
+          value={grouping} 
+          onChange={(e) => setGrouping(e.target.value)}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+          <option value= "status">Status</option>
+          <option value= "user">User</option>
+          <option value= "priority">Priority</option>
+        </select>
 
-export default App;
+        {/* Dropdown for sorting options */}
+        <label htmlFor= "sorting">Sort by:</label>
+        <select 
+          id= "sorting" 
+          value= {sortBy} 
+          onChange= {(e) => setSortBy(e.target.value)}
+        >
+          <option value= "priority">Priority</option>
+          <option value= "title">Title</option>
+        </select>
+
+        {/* Render KanbanBoard with tickets */}
+        <KanbanBoard tickets= {tickets} grouping={grouping} sortBy={sortBy} />
+      </div>
+    );
+  };
+
+  export default App;
